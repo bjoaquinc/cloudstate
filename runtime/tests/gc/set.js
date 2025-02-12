@@ -2,7 +2,7 @@
 // Test that the garbage collector works correctly with Sets
 const root = {
     nested: {
-    value: new Set([1, 2, 3, 4]),
+    value: new Set([1, 2, 3, 3, 4]),
     value2: new Set([5, 6, 7, 8, 9]),
     },
 };
@@ -28,7 +28,7 @@ commit();
         throw new Error("root.nested.value2 should exist");
     }
     if (root.nested.value.size !== 4) {
-        throw new Error("root.nested.value should have size 4");
+        throw new Error("root.nested.value should have size 4 since duplicates are not allowed in Set");
     }
     if (root.nested.value2.size !== 5) {
         throw new Error("root.nested.value2 should have size 5");
