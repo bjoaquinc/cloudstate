@@ -184,3 +184,62 @@ pub fn test_gc_array() {
         assert_eq!(count, 5);
     }
 }
+
+#[test]
+pub fn test_gc_set() {
+    let db = Database::builder()
+        .create_with_backend(InMemoryBackend::default())
+        .unwrap();
+    let cloudstate = ReDBCloudstate::new(Arc::new(Mutex::new(db)));
+
+    let (cloudstate, _) = run_script(
+        "tests/gc/set.js",
+        cloudstate,
+        CloudstateBlobStorage::new(Arc::new(InMemoryBlobStore::new())),
+    )
+    .unwrap();
+
+    let db = &cloudstate.get_database_mut();
+    let read = db.begin_read();
+    let read = match read {
+        Ok(read) => read,
+        Err(e) => panic!("Error reading database: {}", e),
+    };
+    {
+        let set_table = match read.open_table(tables::SETS_TABLE) {
+            Ok(table) => table,
+            Err(e) => panic!("Error opening objects table: {}", e),
+        };
+        let mut count = 0;
+        for item in set_table.iter().unwrap() {
+            if let Ok((_key, _value)) = item {
+                count += 1;
+            }
+        }
+        assert_eq!(count, 9);
+    }
+
+    read.close().unwrap();
+
+    // Run the garbage collector
+    mark_and_sweep(&db).unwrap();
+
+    let read = db.begin_read();
+    let read = match read {
+        Ok(read) => read,
+        Err(_e) => return,
+    };
+    {
+        let set_table = match read.open_table(tables::SETS_TABLE) {
+            Ok(table) => table,
+            Err(e) => panic!("Error opening objects table: {}", e),
+        };
+        let mut count = 0;
+        for item in set_table.iter().unwrap() {
+            if let Ok((_key, _value)) = item {
+                count += 1;
+            }
+        }
+        assert_eq!(count, 5);
+    }
+}
