@@ -1460,6 +1460,30 @@ pub struct CloudstateArrayItemValue {
     pub data: CloudstatePrimitiveData,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct CloudstateSetItemKey {
+    // Using the actual value as the key
+    pub value: CloudstatePrimitiveData,
+}
+
+impl PartialOrd for CloudstateSetItemKey {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for CloudstateSetItemKey {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.value.cmp(&other.value)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct CloudstateSetItemValue {
+    // Storing the insert number as the value
+    pub insert_number: u64,
+}
+
 deno_core::extension!(
   cloudstate,
   ops = [
