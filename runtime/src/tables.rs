@@ -4,7 +4,7 @@ use crate::{
     extensions::cloudstate::{
         CloudstateArrayItemKey, CloudstateArrayItemValue, CloudstateBlobKey, CloudstateMapFieldKey,
         CloudstateMapFieldValue, CloudstateObjectKey, CloudstateObjectValue, CloudstateRootKey,
-        CloudstateRootValue,
+        CloudstateRootValue, CloudstateSetItemKey, CloudstateSetItemValue
     },
 };
 use redb::TableDefinition;
@@ -31,3 +31,8 @@ pub const BLOBS_TABLE: TableDefinition<
     Bincode<CloudstateBlobKey>,
     Bincode<CloudstateBlobMetadata>,
 > = TableDefinition::new("blobs");
+
+pub const SETS_TABLE: TableDefinition<
+    Bincode<CloudstateSetItemKey>,
+    Bincode<CloudstateSetItemValue>,
+> = TableDefinition::new("sets");
